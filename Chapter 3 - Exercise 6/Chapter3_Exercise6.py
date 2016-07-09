@@ -26,11 +26,11 @@ t = np.array(t)
 
 # Pass the data and class labels to the gradient descent function
 start = time.time()
-W_s, E_s = gradient_descent_stochastic(X, t, 0.1, maxIters=20)
+W_s, E_s = gradient_descent_stochastic(X, t, 0.1, maxIters=10)
 end = time.time()
 print "Time elapsed for stochastic: " + str(end - start) + " secs"
 start = time.time()
-W_b, E_b = gradient_descent_batch(X, t, 0.01, maxIters=4000)
+W_b, E_b = gradient_descent_batch(X, t, 0.1, maxIters=2000)
 end = time.time()
 print "Time elapsed for batch: " + str(end - start) + " secs"
 
@@ -77,6 +77,10 @@ anim = animation.FuncAnimation(
 
 # Plot the error over time
 plt.figure()
+plt.axes(
+    xlim=(0, len(E_s)),
+    ylim=(E_b[-1], E_b[0])
+)
 error_b, = plt.plot(range(1, len(E_b) + 1), E_b)
 error_s, = plt.plot(range(1, len(E_s) + 1), E_s)
 plt.xlabel("Iterations")
