@@ -40,29 +40,54 @@ x_line, Y_b = hyperplane(np.min(X[:, 0]), np.max(X[:, 0]), W_b)
 
 ###############################################################################
 
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
+
 # Animate the linear separators
-fig = plt.figure()
-ax = plt.axes(
-    xlim=(np.min(X[:, 0]), np.max(X[:, 0])),
-    ylim=(np.min(X[:, 1]), np.max(X[:, 1]))
-)
-ax.grid(True)
-ax.set_xlabel("x1")
-ax.set_ylabel("x2")
-ax.set_title("Demonstration of Gradient Descent")
-classA, = ax.plot(X[t == 1, 0], X[t == 1, 1], 'x')
-classB, = ax.plot(X[t == 0, 0], X[t == 0, 1], 'o')
-line_s, = ax.plot(x_line, Y_s[-1])
-line_b, = ax.plot(x_line, Y_b[-1])
-ax.legend(
-    [classA, classB, line_s, line_b],
-    ['Class A', 'Class B', 'Stochastic', 'Batch']
+ax1.set_xlim(np.min(X[:, 0]), np.max(X[:, 0]))
+ax1.set_ylim(np.min(X[:, 1]), np.max(X[:, 1]))
+ax1.grid(True)
+ax1.set_xlabel("x1")
+ax1.set_ylabel("x2")
+ax1.set_title("Demonstration of Gradient Descent")
+classA, = ax1.plot(X[t == 1, 0], X[t == 1, 1], 'x')
+classB, = ax1.plot(X[t == 0, 0], X[t == 0, 1], 'o')
+line_s, = ax1.plot([], [], 'r')
+line_b, = ax1.plot([], [], 'c')
+ax1.legend(
+    [line_s, line_b],
+    ['Stochastic', 'Batch']
 ).draggable()
 
+###############################################################################
+
+# Plot the error over time
+ax2.set_xlim(0, len(E_s))
+ax2.set_ylim(E_b[-1], E_b[0])
+error_b, = ax2.plot([], [], 'c')
+error_s, = ax2.plot([], [], 'r')
+ax2.set_xlabel("Iterations")
+ax2.set_ylabel("Error")
+ax2.set_title("Sum-of-Square Error Over All Iterations")
+ax2.legend([error_s, error_b], ['Stochastic', 'Batch'])
+ax2.grid(True)
+
+###############################################################################
+
+lines = [line_s, line_b, error_s, error_b]
+xdata = []
+ydata_s = []
+ydata_b = []
+
 def animate(i):
+    xdata.append(i)
+    ydata_s.append(E_s[i])
+    ydata_b.append(E_b[i])
+
     line_s.set_data(x_line, Y_s[i])
     line_b.set_data(x_line, Y_b[i])
-    return line_s,
+    error_b.set_data(xdata, ydata_b)
+    error_s.set_data(xdata, ydata_s)
+    return lines
 
 anim = animation.FuncAnimation(
     fig,
@@ -72,22 +97,6 @@ anim = animation.FuncAnimation(
     blit=False,
     repeat=False
 )
-
-###############################################################################
-
-# Plot the error over time
-plt.figure()
-plt.axes(
-    xlim=(0, len(E_s)),
-    ylim=(E_b[-1], E_b[0])
-)
-error_b, = plt.plot(range(1, len(E_b) + 1), E_b)
-error_s, = plt.plot(range(1, len(E_s) + 1), E_s)
-plt.xlabel("Iterations")
-plt.ylabel("Error")
-plt.title("Sum-of-Square Error Over All Iterations")
-plt.legend([error_b, error_s], ['Batch', 'Stochastic'])
-plt.grid(True)
 
 ###############################################################################
 
