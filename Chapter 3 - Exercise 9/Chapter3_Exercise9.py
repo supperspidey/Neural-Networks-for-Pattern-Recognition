@@ -1,5 +1,8 @@
 import numpy as np
 import csv
+from perceptron import perceptron
+from perceptron import hyperplane
+import matplotlib.pyplot as plt
 
 ###############################################################################
 
@@ -19,3 +22,18 @@ X = np.array(X)
 t = np.array(t)
 
 ###############################################################################
+
+w = perceptron(X, t)
+
+###############################################################################
+
+x_line, Y = hyperplane(np.min(X[:, 0]), np.max(X[:, 0]), w)
+
+###############################################################################
+
+plt.figure()
+plt.plot(X[t == 1, 0], X[t == 1, 1], 'x')
+plt.plot(X[t == -1, 0], X[t == -1, 1], 'o')
+plt.plot(x_line, Y[0])
+
+plt.show()
