@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 # Load data from file
 X = []
 t = []
-with open('data.csv', 'rb') as csvfile:
+with open('Chapter 3 - Exercise 9/data.csv', 'rb') as csvfile:
     reader = csv.reader(csvfile, delimiter=',')
     for row in reader:
         if row[0] == "x1" and row[1] == "x2" and row[2] == "label":
