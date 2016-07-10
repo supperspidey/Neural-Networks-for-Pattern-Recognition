@@ -1,4 +1,3 @@
-from scipy.special import expit
 import numpy as np
 
 ###############################################################################
