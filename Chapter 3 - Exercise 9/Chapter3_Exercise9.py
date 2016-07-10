@@ -1,7 +1,7 @@
 import numpy as np
 import csv
 from perceptron import perceptron
-from perceptron import hyperplane
+from utilities import hyperplane
 import matplotlib.pyplot as plt
 
 ###############################################################################
