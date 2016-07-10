@@ -1,7 +1,22 @@
 import numpy as np
-from utilities import sum_of_square_error
-from utilities import error_derivative
 from utilities import hyperplane
+
+###############################################################################
+
+def sum_of_square_error(X, t, w):
+    error = 0
+    for n in range(0, len(X)):
+        error += np.power((expit(np.inner(w, X[n])) - t[n]), 2)
+    return 0.5 * error
+
+###############################################################################
+
+def error_derivative(x, t, w):
+    a = np.inner(w, x)
+    delta = expit(a) - t
+    g_prime = expit(a) * (1 - expit(a))
+
+    return delta * g_prime * x
 
 ###############################################################################
 
@@ -22,6 +37,8 @@ def gradient_descent_batch(X, t, eta=0.01, maxIters=1000):
         E.append(sum_of_square_error(X_1, t, w))
 
     return W, E
+
+###############################################################################
 
 def gradient_descent_stochastic(X, t, eta=0.01, maxIters=1000):
     X_1 = np.append(X, np.ones([len(X), 1]), axis=1)

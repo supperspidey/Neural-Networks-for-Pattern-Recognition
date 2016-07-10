@@ -9,6 +9,8 @@ def activate(x, w):
     else:
         return -1
 
+###############################################################################
+
 def hyperplane(xmin, xmax, W):
     x_line = np.linspace(xmin, xmax, 10)
     Y = [-(W[0][0]/W[0][1] * x_line + W[0][2]/W[0][1])]
@@ -19,6 +21,8 @@ def hyperplane(xmin, xmax, W):
         )
 
     return x_line, Y
+
+###############################################################################
 
 def perceptron(X, t):
     X_1 = np.append(X, np.ones([len(X), 1]), axis=1)
