@@ -3,6 +3,7 @@ import csv
 from perceptron import perceptron
 from utilities import hyperplane
 import matplotlib.pyplot as plt
+from matplotlib import animation
 
 ###############################################################################
 
@@ -23,17 +24,39 @@ t = np.array(t)
 
 ###############################################################################
 
-w = perceptron(X, t)
+W = perceptron(X, t)
+print W
 
 ###############################################################################
 
-x_line, Y = hyperplane(np.min(X[:, 0]), np.max(X[:, 0]), w)
+x_line, Y = hyperplane(np.min(X[:, 0]), np.max(X[:, 0]), W)
 
 ###############################################################################
 
-plt.figure()
-plt.plot(X[t == 1, 0], X[t == 1, 1], 'x')
-plt.plot(X[t == -1, 0], X[t == -1, 1], 'o')
-plt.plot(x_line, Y[0])
+fig, ax = plt.subplots()
+ax.set_xlim(np.min(X[:, 0]), np.max(X[:, 0]))
+ax.set_ylim(np.min(X[:, 1]), np.max(X[:, 1]))
+ax.grid(True)
+ax.set_xlabel("x1")
+ax.set_ylabel("x2")
+ax.set_title("Demonstration of Perceptron Algorithm")
+ax.plot(X[t == 1, 0], X[t == 1, 1], 'x')
+ax.plot(X[t == -1, 0], X[t == -1, 1], 'o')
+line, = ax.plot([], [], 'r')
+
+def animate(frame):
+    line.set_data(x_line, Y[frame])
+    return line
+
+anim = animation.FuncAnimation(
+    fig,
+    animate,
+    frames=len(W),
+    interval=2000,
+    blit=False,
+    repeat=False
+)
+
+###############################################################################
 
 plt.show()
