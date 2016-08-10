@@ -49,7 +49,7 @@ def gradient_descent_stochastic(X, t, eta=0.01, maxIters=1000):
     E = [sum_of_square_error(X_1[:, 0:3], X_1[:, 3], w)]
 
     for i in range(0, maxIters):
-        # np.random.shuffle(X_1)
+        np.random.shuffle(X_1)
         for n in range(0, len(X_1)):
             w = w - eta * error_derivative(X_1[n, 0:3], X_1[n, 3], w)
             W = np.concatenate((W, [w]), axis=0)
