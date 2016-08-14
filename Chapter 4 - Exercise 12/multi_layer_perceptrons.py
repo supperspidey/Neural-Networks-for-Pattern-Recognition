@@ -51,6 +51,13 @@ class MultiLayerPerceptrons:
     def __activateOutputUnits(self):
         return self.outputs
 
+    def computeError(self, t):
+        return np.sum(np.power(np.subtract(self.outputs, t), 2))
 
+
+x = [2, 3]
+t = [-2, 1]
 nn = MultiLayerPerceptrons(2, 5, 2)
 nn.forwardPropagate(np.array([2, 3]))
+print nn.outputs
+print nn.computeError(t)
