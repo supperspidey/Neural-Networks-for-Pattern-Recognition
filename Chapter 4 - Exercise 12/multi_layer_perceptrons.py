@@ -79,23 +79,32 @@ class MultiLayerPerceptrons:
             self.dE_dwji[ji:ji+self.numIns] = g_prime[j] * del_j[j] * x_b
             ji += self.numIns
 
-    def train(self, X, T, maxIters=100):
-
+    def train(self, X, T, maxIters=100, eta_wji=0.05, eta_wkj=0.05):
+        Y = []
         for epoch in range(0, maxIters):
+            y = []
             for n in range(0, len(X)):
                 outputs, hiddenUnits = self.__forwardPropagate(X[n])
-                E = self.__error(outputs, T[n])
+                y.append(outputs)
                 self.__backPropagate(X[n], T[n], outputs, hiddenUnits)
-                self.w_ji = np.add(self.w_ji, -0.05 * self.dE_dwji)
-                self.w_kj = np.add(self.w_kj, -0.05 * self.dE_dwkj)
+                self.w_ji = np.add(self.w_ji, -eta_wji * self.dE_dwji)
+                self.w_kj = np.add(self.w_kj, -eta_wkj * self.dE_dwkj)
+            Y.append(y)
 
-        # sum = 0
+        E = 0
         for n in range(0, len(X)):
-            outputs, hiddenUnits = self.__forwardPropagate(X[n])
-            print outputs
-            # sum += self.__error(outputs, T[n])
+            outputs, _ = self.__forwardPropagate(X[n])
+            E += self.__error(outputs, T[n])
 
-        # print sum
+        return np.array(Y), E
+
+    def predict(self, X):
+        T = []
+        for n in range(0, len(X)):
+            outputs, _ = self.__forwardPropagate(X[n])
+            T.append(outputs)
+        T = np.array(T)
+        return T
 
     def __error(self, y, t):
         sum = 0
