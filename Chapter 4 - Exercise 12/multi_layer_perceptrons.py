@@ -111,8 +111,3 @@ class MultiLayerPerceptrons:
 
     def __computeHiddenUnitsDerivative(self, hiddenUnits):
         return 1 - np.square(hiddenUnits)
-
-X = np.array([[2, 3], [4, 9]])
-T = [[1], [4]]
-nn = MultiLayerPerceptrons(2, 5, 1)
-nn.train(X, T)
