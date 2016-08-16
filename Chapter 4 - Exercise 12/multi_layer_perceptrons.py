@@ -25,39 +25,43 @@ class MultiLayerPerceptrons:
         self.dE_dwkj = np.zeros(self.numHiddens * numOuts)
 
         self.hiddenUnits = np.append(1, np.zeros(numHiddens))
-        self.outputs = np.zeros(numOuts)
 
     def __forwardPropagate(self, x):
         x_b = np.append(1, x)
+        hiddenUnits = np.append(1, np.zeros(self.numHiddens-1))
+        outputs = np.zeros(self.numOuts)
 
         ji = 0
         for j in range(1, self.numHiddens):
-            self.hiddenUnits[j] += np.sum(
+            hiddenUnits[j] += np.sum(
                 np.multiply(self.w_ji[ji:ji+self.numIns], x_b)
             )
             ji += self.numIns
-        self.hiddenUnits[1:self.numHiddens] = self.__activate(
-            self.hiddenUnits[1:self.numHiddens],
+        hiddenUnits[1:self.numHiddens] = self.__activate(
+            hiddenUnits[1:self.numHiddens],
             ActivationTypes.hiddenLayer
         )
 
         kj = 0
         for k in range(0, self.numOuts):
-            self.outputs[k] += np.sum(
-                np.multiply(self.w_kj[kj:kj+self.numHiddens], self.hiddenUnits)
+            outputs[k] += np.sum(
+                np.multiply(self.w_kj[kj:kj+self.numHiddens], hiddenUnits)
             )
             kj += self.numHiddens
-        self.outputs = self.__activate(
-            self.outputs,
+
+        outputs = self.__activate(
+            outputs,
             ActivationTypes.outputLayer
         )
 
-    def __backPropagate(self, x, t):
+        return outputs, hiddenUnits
+
+    def __backPropagate(self, x, t, outputs, hiddenUnits):
         x_b = np.append(1, x)
-        del_k = np.subtract(self.outputs, t)
+        del_k = np.subtract(outputs, t)
         kj = 0
         for k in range(0, self.numOuts):
-            self.dE_dwkj[kj:kj+self.numHiddens] = del_k[k] * self.hiddenUnits
+            self.dE_dwkj[kj:kj+self.numHiddens] = del_k[k] * hiddenUnits
             kj += self.numHiddens
 
         del_j = np.zeros(self.numHiddens)
@@ -70,13 +74,34 @@ class MultiLayerPerceptrons:
             kj += self.numHiddens
 
         ji = 0
-        g_prime = self.__computeHiddenUnitsTanhDerivative()
+        g_prime = self.__computeHiddenUnitsDerivative(hiddenUnits)
         for j in range(1, self.numHiddens):
             self.dE_dwji[ji:ji+self.numIns] = g_prime[j] * del_j[j] * x_b
             ji += self.numIns
 
-    def train(self, X, T):
-        print "Hello, World!"
+    def train(self, X, T, maxIters=100):
+
+        for epoch in range(0, maxIters):
+            for n in range(0, len(X)):
+                outputs, hiddenUnits = self.__forwardPropagate(X[n])
+                E = self.__error(outputs, T[n])
+                self.__backPropagate(X[n], T[n], outputs, hiddenUnits)
+                self.w_ji = np.add(self.w_ji, -0.05 * self.dE_dwji)
+                self.w_kj = np.add(self.w_kj, -0.05 * self.dE_dwkj)
+
+        # sum = 0
+        for n in range(0, len(X)):
+            outputs, hiddenUnits = self.__forwardPropagate(X[n])
+            print outputs
+            # sum += self.__error(outputs, T[n])
+
+        # print sum
+
+    def __error(self, y, t):
+        sum = 0
+        for k in range(0, len(y)):
+            sum += (y[k] - t[k])**2
+        return 0.5 * sum
 
     def __activate(self, a, type):
         if type == ActivationTypes.hiddenLayer:
@@ -84,10 +109,10 @@ class MultiLayerPerceptrons:
         else:
             return a
 
-    def __computeHiddenUnitsTanhDerivative(self):
-        return 1 - np.square(self.hiddenUnits)
+    def __computeHiddenUnitsDerivative(self, hiddenUnits):
+        return 1 - np.square(hiddenUnits)
 
-x = np.array([2, 3])
-t = 1
+X = np.array([[2, 3], [4, 9]])
+T = [[1], [4]]
 nn = MultiLayerPerceptrons(2, 5, 1)
-nn.train(x, t)
+nn.train(X, T)
