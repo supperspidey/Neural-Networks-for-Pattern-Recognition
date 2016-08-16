@@ -1,5 +1,3 @@
-# This is a commit
-
 import numpy as np
 
 ###############################################################################
@@ -29,7 +27,7 @@ class MultiLayerPerceptrons:
         self.hiddenUnits = np.append(1, np.zeros(numHiddens))
         self.outputs = np.zeros(numOuts)
 
-    def forwardPropagate(self, x):
+    def __forwardPropagate(self, x):
         x_b = np.append(1, x)
 
         ji = 0
@@ -54,7 +52,7 @@ class MultiLayerPerceptrons:
             ActivationTypes.outputLayer
         )
 
-    def backPropagate(self, x, t):
+    def __backPropagate(self, x, t):
         x_b = np.append(1, x)
         del_k = np.subtract(self.outputs, t)
         kj = 0
@@ -77,8 +75,8 @@ class MultiLayerPerceptrons:
             self.dE_dwji[ji:ji+self.numIns] = g_prime[j] * del_j[j] * x_b
             ji += self.numIns
 
-        print self.dE_dwji
-        print self.dE_dwkj
+    def train(self, X, T):
+        print "Hello, World!"
 
     def __activate(self, a, type):
         if type == ActivationTypes.hiddenLayer:
@@ -90,7 +88,6 @@ class MultiLayerPerceptrons:
         return 1 - np.square(self.hiddenUnits)
 
 x = np.array([2, 3])
-t = np.array([-2, 1])
-nn = MultiLayerPerceptrons(2, 5, 2)
-nn.forwardPropagate(x)
-nn.backPropagate(x, t)
+t = 1
+nn = MultiLayerPerceptrons(2, 5, 1)
+nn.train(x, t)
