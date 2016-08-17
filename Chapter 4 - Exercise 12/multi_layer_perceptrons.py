@@ -109,7 +109,7 @@ class MultiLayerPerceptrons:
     def __error(self, y, t):
         sum = 0
         for k in range(0, len(y)):
-            sum += (y[k] - t[k])**2
+            sum += np.square(y[k] - t[k])
         return 0.5 * sum
 
     def __activate(self, a, type):
