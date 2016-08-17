@@ -2,7 +2,8 @@ import csv
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import animation
-from multi_layer_perceptrons import MultiLayerPerceptrons
+from multi_layer_perceptrons import BackPropagation
+from multi_layer_perceptrons import CentralDifferences
 
 ################################################################################
 
@@ -24,10 +25,13 @@ T = np.array(T)
 
 ################################################################################
 
-nn = MultiLayerPerceptrons(numIns=1, numHiddens=30, numOuts=1)
+# nn1 = BackPropagation(numIns=1, numHiddens=30, numOuts=1)
+# Y, E = nn1.train(X, T, maxIters=90, eta_wji=0.05, eta_wkj=0.08)
 
-#   Train the neural network
-Y, E = nn.train(X, T, maxIters=90, eta_wji=0.05, eta_wkj=0.08)
+################################################################################
+
+nn2 = CentralDifferences(numIns=1, numHiddens=30, numOuts=1)
+Y, E = nn2.train(X, T, maxIters=90, eta_wji=0.05, eta_wkj=0.08)
 
 ################################################################################
 
