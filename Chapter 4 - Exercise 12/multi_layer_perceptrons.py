@@ -17,12 +17,10 @@ class MultiLayerPerceptrons:
         self.w_ji = np.random.standard_normal(
             self.numIns * numHiddens
         )
-        self.dE_dwji = np.zeros(self.numIns * numHiddens)
 
         self.w_kj = np.random.standard_normal(
             self.numHiddens * numOuts
         )
-        self.dE_dwkj = np.zeros(self.numHiddens * numOuts)
 
         self.hiddenUnits = np.append(1, np.zeros(numHiddens))
 
@@ -60,8 +58,10 @@ class MultiLayerPerceptrons:
         x_b = np.append(1, x)
         del_k = np.subtract(outputs, t)
         kj = 0
+        dE_dwji = np.zeros(self.numIns * (self.numHiddens-1))
+        dE_dwkj = np.zeros(self.numHiddens * self.numOuts)
         for k in range(0, self.numOuts):
-            self.dE_dwkj[kj:kj+self.numHiddens] = del_k[k] * hiddenUnits
+            dE_dwkj[kj:kj+self.numHiddens] = del_k[k] * hiddenUnits
             kj += self.numHiddens
 
         del_j = np.zeros(self.numHiddens)
@@ -69,15 +69,17 @@ class MultiLayerPerceptrons:
         for k in range(0, self.numOuts):
             del_j = np.add(
                 del_j,
-                del_k[k] * self.w_kj[kj:kj+self.numHiddens]
+                del_k[k] * np.array(self.w_kj[kj:kj+self.numHiddens])
             )
             kj += self.numHiddens
 
         ji = 0
         g_prime = self.__computeHiddenUnitsDerivative(hiddenUnits)
         for j in range(1, self.numHiddens):
-            self.dE_dwji[ji:ji+self.numIns] = g_prime[j] * del_j[j] * x_b
+            dE_dwji[ji:ji+self.numIns] = g_prime[j] * del_j[j] * x_b
             ji += self.numIns
+
+        return dE_dwji, dE_dwkj
 
     def train(self, X, T, maxIters=100, eta_wji=0.05, eta_wkj=0.05):
         Y = []
@@ -85,13 +87,15 @@ class MultiLayerPerceptrons:
         for epoch in range(0, maxIters):
             y = []
             error = 0
+
             for n in range(0, len(X)):
                 outputs, hiddenUnits = self.__forwardPropagate(X[n])
                 y.append(outputs)
                 error += self.__error(outputs, T[n])
-                self.__backPropagate(X[n], T[n], outputs, hiddenUnits)
-                self.w_ji = np.add(self.w_ji, -eta_wji * self.dE_dwji)
-                self.w_kj = np.add(self.w_kj, -eta_wkj * self.dE_dwkj)
+                dEn_dwji, dEn_dwkj = self.__backPropagate(X[n], T[n], outputs, hiddenUnits)
+                self.w_ji = np.add(self.w_ji, -eta_wji * dEn_dwji)
+                self.w_kj = np.add(self.w_kj, -eta_wkj * dEn_dwkj)
+
             Y.append(y)
             E.append(error)
 
@@ -106,10 +110,10 @@ class MultiLayerPerceptrons:
         return T
 
     def __error(self, y, t):
-        sum = 0
+        error = 0
         for k in range(0, len(y)):
-            sum += np.square(y[k] - t[k])
-        return 0.5 * sum
+            error += np.square(y[k] - t[k])
+        return 0.5 * error
 
     def __activate(self, a, type):
         if type == ActivationTypes.hiddenLayer:

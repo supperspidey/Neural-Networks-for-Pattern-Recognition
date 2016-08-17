@@ -24,10 +24,10 @@ T = np.array(T)
 
 ################################################################################
 
-nn = MultiLayerPerceptrons(numIns=1, numHiddens=15, numOuts=1)
+nn = MultiLayerPerceptrons(numIns=1, numHiddens=30, numOuts=1)
 
 #   Train the neural network
-Y, E = nn.train(X, T, maxIters=2000, eta_wji=0.07, eta_wkj=0.07)
+Y, E = nn.train(X, T, maxIters=90, eta_wji=0.05, eta_wkj=0.08)
 
 ################################################################################
 
