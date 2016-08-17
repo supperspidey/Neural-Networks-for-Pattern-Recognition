@@ -1,4 +1,5 @@
 import csv
+import time
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import animation
@@ -67,16 +68,54 @@ T = np.array(T)
 
 ################################################################################
 
-nn1 = BackPropagation(numIns=1, numHiddens=30, numOuts=1)
-Y1, E1 = nn1.train(X, T, maxIters=90, eta_wji=0.05, eta_wkj=0.08)
+# nn1 = BackPropagation(numIns=1, numHiddens=30, numOuts=1)
+# Y1, E1 = nn1.train(X, T, maxIters=90, eta_wji=0.05, eta_wkj=0.08)
 
 ################################################################################
 
-nn2 = CentralDifferences(numIns=1, numHiddens=15, numOuts=1)
-Y2, E2 = nn2.train(X, T, maxIters=90, eps=0.03, eta_wji=0.05, eta_wkj=0.08)
+# nn2 = CentralDifferences(numIns=1, numHiddens=15, numOuts=1)
+# Y2, E2 = nn2.train(X, T, maxIters=90, eps=0.03, eta_wji=0.05, eta_wkj=0.08)
 
 ################################################################################
 
-anim1 = plot(X, Y1, E1, "Demonstration of Training Neural Network Using Backpropagation Algorithm")
-anim2 = plot(X, Y2, E2, "Demonstration of Training Neural Network Using Central Differences")
-plt.show([anim1, anim2])
+# anim1 = plot(X, Y1, E1, "Demonstration of Training Neural Network Using Backpropagation Algorithm")
+# anim2 = plot(X, Y2, E2, "Demonstration of Training Neural Network Using Central Differences")
+# plt.show([anim1, anim2])
+
+################################################################################
+
+timeCD = []
+timeBP = []
+numWeights_cd = []
+numWeights_bp = []
+for i in range(2, 20):
+    nn = BackPropagation(numIns=1, numHiddens=i, numOuts=1)
+    numWeights_bp.append(nn.numIns * (nn.numHiddens-1) + nn.numHiddens * nn.numOuts)
+    startTime = time.time()
+    nn.train(X, T, maxIters=90, eta_wji=0.05, eta_wkj=0.08)
+    endTime = time.time()
+    timeBP.append(endTime - startTime)
+
+for i in range(2, 20):
+    nn = CentralDifferences(numIns=1, numHiddens=i, numOuts=1)
+    numWeights_cd.append(nn.numIns * (nn.numHiddens-1) + nn.numHiddens * nn.numOuts)
+    startTime = time.time()
+    nn.train(X, T, maxIters=90, eps=0.03, eta_wji=0.05, eta_wkj=0.08)
+    endTime = time.time()
+    timeCD.append(endTime - startTime)
+
+plt.figure()
+plt.plot(numWeights_cd, timeCD, 'r')
+plt.xlabel("Weights")
+plt.ylabel("Time (s)")
+plt.title("Time vs Weights (Central Differences)")
+plt.grid(True)
+
+plt.figure()
+plt.plot(numWeights_bp, timeBP, 'r')
+plt.xlabel("Weights")
+plt.ylabel("Time (s)")
+plt.title("Time vs Weights (Backpropagation)")
+plt.grid(True)
+
+plt.show()
