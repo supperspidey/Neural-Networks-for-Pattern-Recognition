@@ -27,22 +27,42 @@ T = np.array(T)
 nn = MultiLayerPerceptrons(numIns=1, numHiddens=15, numOuts=1)
 
 #   Train the neural network
-Y, E = nn.train(X, T, maxIters=200, eta_wji=0.02, eta_wkj=0.04)
-print "Error: " + str(E)
+Y, E = nn.train(X, T, maxIters=2000, eta_wji=0.07, eta_wkj=0.07)
 
 ################################################################################
 
-#   Show the result
-fig, ax = plt.subplots()
-ax.grid(True)
-ax.set_xlabel("x")
-ax.set_ylabel("y")
-ax.plot(X.flatten(), T.flatten(), 'o')
-curves, = ax.plot([], [], 'r')
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
 
-def animate(frame):
-    curves.set_data(X.flatten(), Y[frame].flatten())
-    return curves
+# Animate the linear separators
+ax1.grid(True)
+ax1.set_xlabel("x")
+ax1.set_ylabel("y")
+ax1.plot(X.flatten(), T.flatten(), 'o')
+curve, = ax1.plot([], [], 'r')
+
+###############################################################################
+
+# Plot the error over time
+ax2.set_xlim(0, len(E))
+ax2.set_ylim(E[-1], E[0])
+error, = ax2.plot([], [], 'c')
+ax2.set_xlabel("Iterations")
+ax2.set_ylabel("Error")
+ax2.grid(True)
+
+###############################################################################
+
+lines = [curve, error]
+xdata = []
+ydata = []
+
+def animate(i):
+    xdata.append(i)
+    ydata.append(E[i])
+
+    curve.set_data(X.flatten(), Y[i].flatten())
+    error.set_data(xdata, ydata)
+    return lines
 
 anim = animation.FuncAnimation(
     fig,

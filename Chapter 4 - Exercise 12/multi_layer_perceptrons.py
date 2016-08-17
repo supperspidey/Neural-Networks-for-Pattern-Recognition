@@ -81,22 +81,21 @@ class MultiLayerPerceptrons:
 
     def train(self, X, T, maxIters=100, eta_wji=0.05, eta_wkj=0.05):
         Y = []
+        E = []
         for epoch in range(0, maxIters):
             y = []
+            error = 0
             for n in range(0, len(X)):
                 outputs, hiddenUnits = self.__forwardPropagate(X[n])
                 y.append(outputs)
+                error += self.__error(outputs, T[n])
                 self.__backPropagate(X[n], T[n], outputs, hiddenUnits)
                 self.w_ji = np.add(self.w_ji, -eta_wji * self.dE_dwji)
                 self.w_kj = np.add(self.w_kj, -eta_wkj * self.dE_dwkj)
             Y.append(y)
+            E.append(error)
 
-        E = 0
-        for n in range(0, len(X)):
-            outputs, _ = self.__forwardPropagate(X[n])
-            E += self.__error(outputs, T[n])
-
-        return np.array(Y), E
+        return np.array(Y), np.array(E)
 
     def predict(self, X):
         T = []
