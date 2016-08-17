@@ -178,10 +178,10 @@ class CentralDifferences:
         dE_dwji = np.zeros(self.numIns * (self.numHiddens-1))
         dE_dwkj = np.zeros(self.numHiddens * self.numOuts)
         for ji in range(0, len(self.w_ji)):
-            w_ji_l = self.w_ji
-            w_ji_h = self.w_ji
+            w_ji_l = np.array(self.w_ji)
+            w_ji_h = np.array(self.w_ji)
             w_ji_l[ji] = w_ji_l[ji] - eps
-            w_ji_h[ji] = w_ji_h[ji] - eps
+            w_ji_h[ji] = w_ji_h[ji] + eps
             y1, _ = self.__forwardPropagate(x, w_ji=w_ji_l, w_kj=self.w_kj)
             y2, _ = self.__forwardPropagate(x, w_ji=w_ji_h, w_kj=self.w_kj)
             E1 = self.__error(y1, t)
@@ -189,10 +189,10 @@ class CentralDifferences:
             dE_dwji[ji] = (E2 - E1) / (2 * eps)
 
         for kj in range(0, len(self.w_kj)):
-            w_kj_l = self.w_kj
-            w_kj_h = self.w_kj
+            w_kj_l = np.array(self.w_kj)
+            w_kj_h = np.array(self.w_kj)
             w_kj_l[kj] = w_kj_l[kj] - eps
-            w_kj_h[kj] = w_kj_h[kj] - eps
+            w_kj_h[kj] = w_kj_h[kj] + eps
             y1, _ = self.__forwardPropagate(x, w_ji=self.w_ji, w_kj=w_kj_l)
             y2, _ = self.__forwardPropagate(x, w_ji=self.w_ji, w_kj=w_kj_h)
             E1 = self.__error(y1, t)
@@ -213,6 +213,7 @@ class CentralDifferences:
                 y.append(outputs)
                 error += self.__error(outputs, T[n])
                 dEn_dwji, dEn_dwkj = self.__computeWeightDerivatives(X[n], T[n], eps=eps)
+                # print dEn_dwji
                 self.w_ji = np.add(self.w_ji, -eta_wji * dEn_dwji)
                 self.w_kj = np.add(self.w_kj, -eta_wkj * dEn_dwkj)
 

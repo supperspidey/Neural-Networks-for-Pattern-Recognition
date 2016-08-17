@@ -7,6 +7,48 @@ from multi_layer_perceptrons import CentralDifferences
 
 ################################################################################
 
+def plot(X, Y, E, title):
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
+    fig.suptitle(title, fontsize=17)
+    ax1.grid(True)
+    ax1.set_xlabel("x")
+    ax1.set_ylabel("y")
+    ax1.plot(X.flatten(), T.flatten(), 'o')
+    curve, = ax1.plot([], [], 'r')
+
+    ax2.set_xlim(0, len(E))
+    ax2.set_ylim(E[-1], E[0])
+    error, = ax2.plot([], [], 'c')
+    ax2.set_xlabel("Iterations")
+    ax2.set_ylabel("Error")
+    ax2.grid(True)
+
+    lines = [curve, error]
+    xdata = []
+    ydata = []
+
+    anim = animation.FuncAnimation(
+        fig,
+        animate,
+        frames=len(Y),
+        interval=100,
+        fargs=(X, Y, E, lines, xdata, ydata),
+        blit=False,
+        repeat=False
+    )
+
+    return anim
+
+def animate(frame, X, Y, E, lines, xdata, ydata):
+    xdata.append(frame)
+    ydata.append(E[frame])
+
+    lines[0].set_data(X.flatten(), Y[frame].flatten())
+    lines[1].set_data(xdata, ydata)
+    return lines
+
+################################################################################
+
 #   Load data from the file
 X = []
 T = []
@@ -25,58 +67,16 @@ T = np.array(T)
 
 ################################################################################
 
-# nn1 = BackPropagation(numIns=1, numHiddens=30, numOuts=1)
-# Y, E = nn1.train(X, T, maxIters=90, eta_wji=0.05, eta_wkj=0.08)
+nn1 = BackPropagation(numIns=1, numHiddens=30, numOuts=1)
+Y1, E1 = nn1.train(X, T, maxIters=90, eta_wji=0.05, eta_wkj=0.08)
 
 ################################################################################
 
-nn2 = CentralDifferences(numIns=1, numHiddens=30, numOuts=1)
-Y, E = nn2.train(X, T, maxIters=90, eta_wji=0.05, eta_wkj=0.08)
+nn2 = CentralDifferences(numIns=1, numHiddens=15, numOuts=1)
+Y2, E2 = nn2.train(X, T, maxIters=90, eps=0.03, eta_wji=0.05, eta_wkj=0.08)
 
 ################################################################################
 
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
-
-# Animate the linear separators
-ax1.grid(True)
-ax1.set_xlabel("x")
-ax1.set_ylabel("y")
-ax1.plot(X.flatten(), T.flatten(), 'o')
-curve, = ax1.plot([], [], 'r')
-
-###############################################################################
-
-# Plot the error over time
-ax2.set_xlim(0, len(E))
-ax2.set_ylim(E[-1], E[0])
-error, = ax2.plot([], [], 'c')
-ax2.set_xlabel("Iterations")
-ax2.set_ylabel("Error")
-ax2.grid(True)
-
-###############################################################################
-
-lines = [curve, error]
-xdata = []
-ydata = []
-
-def animate(i):
-    xdata.append(i)
-    ydata.append(E[i])
-
-    curve.set_data(X.flatten(), Y[i].flatten())
-    error.set_data(xdata, ydata)
-    return lines
-
-anim = animation.FuncAnimation(
-    fig,
-    animate,
-    frames=len(Y),
-    interval=100,
-    blit=False,
-    repeat=False
-)
-
-###############################################################################
-
-plt.show()
+anim1 = plot(X, Y1, E1, "Demonstration of Training Neural Network Using Backpropagation Algorithm")
+anim2 = plot(X, Y2, E2, "Demonstration of Training Neural Network Using Central Differences")
+plt.show([anim1, anim2])
