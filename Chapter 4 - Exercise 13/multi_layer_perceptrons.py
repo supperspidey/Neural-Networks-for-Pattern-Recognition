@@ -74,7 +74,7 @@ class MultiLayerPerceptrons:
             kj += self.numHiddens
 
         ji = 0
-        g_prime = self.__computeHiddenUnitsDerivative(hiddenUnits)
+        g_prime = self.__firstDerivatives(hiddenUnits)
         for j in range(1, self.numHiddens):
             dE_dwji[ji:ji+self.numIns] = g_prime[j] * del_j[j] * x_b
             ji += self.numIns
@@ -101,7 +101,8 @@ class MultiLayerPerceptrons:
             Y.append(y)
             E.append(error)
 
-        self.__hessianMatrix(X[0], self.w_ji, self.w_kj)
+        y, _ = self.__forwardPropagate(X[n])
+        self.__hessianMatrix(X[0], T[0], y, self.w_ji, self.w_kj)
 
         return np.array(Y), np.array(E)
 
@@ -125,19 +126,77 @@ class MultiLayerPerceptrons:
         else:
             return a
 
-    def __computeHiddenUnitsDerivative(self, hiddenUnits):
+    def __firstDerivatives(self, hiddenUnits):
         return 1 - np.square(hiddenUnits)
 
-    def __hessianMatrix(self, x, w_ji, w_kj):
-        v = np.zeros(len(self.w_ji) + len(self.w_kj))
-        #   i = 0, j = 1
-        v[0] = 1
+    def __secondDerivatives(self, hiddenUnits):
+        g_prime = self.__firstDerivatives(hiddenUnits)
+        return -2 * np.multiply(hiddenUnits, g_prime)
 
+    def __hessianMatrix(self, x, t, y, w_ji, w_kj):
+        v_ji = np.zeros(len(self.w_ji))
+        v_ji[0] = 1
+        v_kj = np.zeros(len(self.w_kj))
         x_b = np.append(1, x)
-        R_aj = np.append(1, np.zeros(self.numHiddens-1))
+
+        R_aj = np.zeros(self.numHiddens)
+        aj = np.zeros(self.numHiddens)
         ji = 0
         for j in range(1, len(R_aj)):
-            R_aj[j] = np.sum(np.multiply(x_b, v[ji:ji+self.numIns]))
+            aj[j] = np.sum(np.multiply(x_b, w_ji[ji:ji+self.numIns]))
+            R_aj[j] = np.sum(np.multiply(x_b, v_ji[ji:ji+self.numIns]))
             ji += self.numIns
 
-        print R_aj
+        zj = self.__activate(aj, type=ActivationTypes.hiddenLayer)
+        zj[0] = 1
+        zj_p = self.__firstDerivatives(zj)
+        zj_p[0] = 0
+        R_zj = np.multiply(zj_p, R_aj)
+
+        R_yk = np.zeros(self.numOuts)
+        kj = 0
+        for k in range(0, len(R_yk)):
+            R_yk[k] = np.add(
+                np.sum(np.multiply(w_kj[kj:kj+self.numHiddens], R_zj)),
+                np.sum(np.multiply(v_ji[kj:kj+self.numHiddens], zj))
+            )
+            kj += self.numHiddens
+
+        del_k = np.subtract(y, t)
+        R_del_k = np.array(R_yk)
+        zj_pp = self.__secondDerivatives(zj)
+        R_del_j = np.zeros(self.numHiddens)
+        for j in range(1, len(R_del_j)):
+            expr1 = zj_pp[j] * R_aj[j] * np.sum(
+                np.multiply(del_k, self.w_kj[j:len(self.w_kj):self.numHiddens])
+            )
+            expr2 = zj_p[j] * np.sum(
+                np.multiply(del_k, v_kj[j:len(v_kj):self.numHiddens])
+            )
+            expr3 = zj_p[j] * np.sum(
+                np.multiply(R_del_k, self.w_kj[j:len(self.w_kj):self.numHiddens])
+            )
+            R_del_j[j] = expr1 + expr2 + expr3
+
+        R_dEdwkj = np.zeros(len(self.w_kj))
+        k = 0
+        j = 0
+        for kj in range(0, len(self.w_kj)):
+            R_dEdwkj[kj] = R_del_k[k] * zj[j] + del_k[k] * R_zj[j]
+            j += 1
+            if j == self.numHiddens:
+                j = 0
+                k += 1
+
+        print R_dEdwkj
+        R_dEdwji = np.zeros(len(self.w_ji))
+        j = 0
+        i = 0
+        for ji in range(0, len(self.w_ji)):
+            R_dEdwji[ji] = x_b[i] * R_del_j[j]
+            i += 1
+            if i == self.numIns:
+                i = 0
+                j += 1
+
+        return np.append(R_dEdwji, R_dEdwkj)
