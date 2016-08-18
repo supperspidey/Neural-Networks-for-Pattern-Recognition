@@ -1,4 +1,5 @@
 import numpy as np
+import pdb
 
 ###############################################################################
 
@@ -167,7 +168,7 @@ class MultiLayerPerceptrons:
         for k in range(0, len(R_yk)):
             R_yk[k] = np.add(
                 np.sum(np.multiply(w_kj[kj:kj+self.numHiddens], R_zj)),
-                np.sum(np.multiply(v_ji[kj:kj+self.numHiddens], zj))
+                np.sum(np.multiply(v_kj[kj:kj+self.numHiddens], zj))
             )
             kj += self.numHiddens
 
@@ -175,6 +176,7 @@ class MultiLayerPerceptrons:
         R_del_k = np.array(R_yk)
         zj_pp = self.__secondDerivatives(zj)
         R_del_j = np.zeros(self.numHiddens)
+
         for j in range(1, len(R_del_j)):
             expr1 = zj_pp[j] * R_aj[j] * np.sum(
                 np.multiply(del_k, self.w_kj[j:len(self.w_kj):self.numHiddens])
@@ -187,6 +189,8 @@ class MultiLayerPerceptrons:
             )
             R_del_j[j] = expr1 + expr2 + expr3
 
+        pdb.set_trace()
+
         R_dEdwkj = np.zeros(len(self.w_kj))
         k = 0
         j = 0
@@ -197,6 +201,8 @@ class MultiLayerPerceptrons:
                 j = 0
                 k += 1
 
+        pdb.set_trace()
+
         R_dEdwji = np.zeros(len(self.w_ji))
         j = 0
         i = 0
@@ -206,5 +212,7 @@ class MultiLayerPerceptrons:
             if i == self.numIns:
                 i = 0
                 j += 1
+
+        pdb.set_trace()
 
         return np.append(R_dEdwji, R_dEdwkj)
