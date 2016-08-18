@@ -101,6 +101,8 @@ class MultiLayerPerceptrons:
             Y.append(y)
             E.append(error)
 
+        self.__hessianMatrix(X[0], self.w_ji)
+
         return np.array(Y), np.array(E)
 
     def predict(self, X):
@@ -125,3 +127,12 @@ class MultiLayerPerceptrons:
 
     def __computeHiddenUnitsDerivative(self, hiddenUnits):
         return 1 - np.square(hiddenUnits)
+
+    def __hessianMatrix(self, x, w_ji):
+        x_b = np.append(1, x)
+        a_j = np.append(1, np.zeros(self.numHiddens-1))
+        ji = 0
+        for j in range(1, len(a_j)):
+            a_j[j] = np.sum(np.multiply(x_b, w_ji[ji:ji+self.numIns]))
+            ji += self.numIns
+        print a_j
