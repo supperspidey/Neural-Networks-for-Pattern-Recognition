@@ -72,10 +72,10 @@ Y1, E1 = nn1.train(X, T, maxIters=90, eta_wji=0.05, eta_wkj=0.08)
 
 ################################################################################
 
-anim = plot(
-    X,
-    Y1,
-    E1,
-    "Demonstration of Training Neural Network Using Backpropagation Algorithm"
-)
-plt.show(anim)
+# anim = plot(
+#     X,
+#     Y1,
+#     E1,
+#     "Demonstration of Training Neural Network Using Backpropagation Algorithm"
+# )
+# plt.show(anim)
