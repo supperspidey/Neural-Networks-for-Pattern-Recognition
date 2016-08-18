@@ -102,7 +102,7 @@ class MultiLayerPerceptrons:
             E.append(error)
 
         y, _ = self.__forwardPropagate(X[n])
-        self.__hessianMatrix(X[0], T[0], y, self.w_ji, self.w_kj)
+        print self.__hessianMatrix(X[0], T[0], y, self.w_ji, self.w_kj)
 
         return np.array(Y), np.array(E)
 
@@ -134,9 +134,18 @@ class MultiLayerPerceptrons:
         return -2 * np.multiply(hiddenUnits, g_prime)
 
     def __hessianMatrix(self, x, t, y, w_ji, w_kj):
-        v_ji = np.zeros(len(self.w_ji))
-        v_ji[0] = 1
-        v_kj = np.zeros(len(self.w_kj))
+        #   Note: Each row is treated as a column
+        identityMatrix = np.identity(len(w_ji) + len(w_kj))
+        hessian = []
+        for col in range(0, len(identityMatrix)):
+            v = identityMatrix[col]
+            hessian.append(self.__R_operate(x, t, y, v, w_ji, w_kj))
+
+        return np.array(hessian).T
+
+    def __R_operate(self, x, t, y, v, w_ji, w_kj):
+        v_ji = np.array(v[0:len(w_ji)])
+        v_kj = np.array(v[len(w_ji):len(v)])
         x_b = np.append(1, x)
 
         R_aj = np.zeros(self.numHiddens)
@@ -188,7 +197,6 @@ class MultiLayerPerceptrons:
                 j = 0
                 k += 1
 
-        print R_dEdwkj
         R_dEdwji = np.zeros(len(self.w_ji))
         j = 0
         i = 0

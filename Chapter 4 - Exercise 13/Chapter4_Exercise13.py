@@ -67,7 +67,7 @@ T = np.array(T)
 
 ################################################################################
 
-nn1 = MultiLayerPerceptrons(numIns=1, numHiddens=15, numOuts=1)
+nn1 = MultiLayerPerceptrons(numIns=1, numHiddens=2, numOuts=1)
 Y1, E1 = nn1.train(X, T, maxIters=90, eta_wji=0.05, eta_wkj=0.08)
 
 ################################################################################
