@@ -189,8 +189,6 @@ class MultiLayerPerceptrons:
             )
             R_del_j[j] = expr1 + expr2 + expr3
 
-        pdb.set_trace()
-
         R_dEdwkj = np.zeros(len(self.w_kj))
         k = 0
         j = 0
@@ -201,10 +199,8 @@ class MultiLayerPerceptrons:
                 j = 0
                 k += 1
 
-        pdb.set_trace()
-
         R_dEdwji = np.zeros(len(self.w_ji))
-        j = 0
+        j = 1
         i = 0
         for ji in range(0, len(self.w_ji)):
             R_dEdwji[ji] = x_b[i] * R_del_j[j]
@@ -212,7 +208,5 @@ class MultiLayerPerceptrons:
             if i == self.numIns:
                 i = 0
                 j += 1
-
-        pdb.set_trace()
 
         return np.append(R_dEdwji, R_dEdwkj)
